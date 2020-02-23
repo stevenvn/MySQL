@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Employee</title>
+    <meta charset="utf-8">
+    
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="project.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+   
+    <script>
+    
+    //set attribute for ele
+    function setAtr(ele, attr){
+        for(let i in attr){
+            ele.setAttribute(i, attr[i]);
+        }
+    }
+    
+    //send request to server, get data in JSON format, display it in class productTable 
+    function ajaxProcess(ajax) {
+        ajax.onreadystatechange = function (){
+        if(this.readyState == 4 && this.status == 200){
+            var data = JSON.parse(this.responseText);
+            console.log(data);
+
+            let html = "";
+
+            if(data.length == 0){
+                html = "Find 0 result";
+                return;
+            }
+
+            for (let i = 0;i< data.length;i++){
+                //Extract data from response
+                let EID = data[i].EID;
+                let EName = data[i].EName;
+                let ESalary = data[i].ESalary;
+                let ERole = data[i].Erole;
+                
+                
+                
+            html += 
+            "<tr>"+
+                "<td>"+EID+"</td>"+
+                "<td>"+EName+"</td>"+
+                "<td>$"+ESalary+"</td>"+
+                "<td>"+ERole+"</td>"+
+                "<td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#"+"m"+EID +"\">Update</button<td>"+
+                "<td><button type=\"button\" class=\"btn btn-danger\"  onclick=update(\""+"m"+EID+"\",\"delete\")  >Delete</button></td>"+
+            "</tr>"+
+            
+            /*each model has an ID = m+EID by default*/
+            "<div class=\"modal fade\" id=\""+"m"+EID+"\" tabindex=\"-1\" role=\"dialog\"  aria-hidden=\"true\">"+
+                "<div class=\"modal-dialog\" role=\"document\">"+
+                    "<div class=\"modal-content\">"+
+                        "<div class=\"modal-header\">"+
+                            "<h5 class=\"modal-title\" id=\"exampleModalLabel\">"+EName+"</h5>"+
+                            "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">"+
+                            "<span aria-hidden=\"true\">&times;</span>"+       
+                            "</button>"+
+                            "</div>"+
+                        "<div class=\"modal-body\">"+
+                            "<form>"+
+                                "<p>Name<p>"+
+                                "<input type=\"text\" class=\"form-control my-3\" placeholder=\"Enter new employee name\" name=\"ESalary\" value = \""+EName+"\" >"+
+                                
+                                "<p>Salary<p>"+
+                                "<input type=\"text\" class=\"form-control my-3\" placeholder=\"Enter new salary\" name=\"ESalary\" value = \""+ESalary+"\" >"+
+                
+                                "<p>Role<p>"+
+                                "<input type=\"text\" class=\"form-control my-3\" placeholder=\"Enter new role\" name=\"ERole\" value = \""+ERole+"\" >"+
+                
+                                "<input type=\"button\" class=\"btn btn-primary my-3\" onclick=update(\""+"m"+EID+"\",\"update\") value=\"Submit\">"+      
+                            "</form>"+
+                        "</div>" +   
+                    "</div>"+
+                "</div>"+
+            "</div>";
+            
+            
+            
+
+            }
+            document.getElementById("employee").innerHTML = html;
+        }
+
+    }
+    }
+    
+    function display(){
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/showemployee.php";//php code
+        let async = true; 
+        
+        
+        ajax.open(method, url, async);
+        ajaxProcess(ajax);
+        ajax.send();
+    
+    }
+    function highlow(hl){
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/highlow.php?command="+hl;//php code
+        let async = true; 
+        ajax.open(method, url, async);
+        ajax.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                data = JSON.parse(this.responseText);
+                console.log(data);
+                html = "";
+                let display = document.getElementById("employee");
+                for (let i = 0;i< data.length;i++){
+                    let EID = data[i].EID;
+                    let EName = data[i].EName;
+                    let ESalary = data[i].ESalary;
+                    let ERole = data[i].ERole;
+
+                    html = html + "<tr><td>" + EID + "</td><td>" + EName + "</td><td>" + ESalary + "</td><td>" + ERole + "</td>";
+                    html += "<td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#"+"m"+EID +"\">Update</button<td>"+
+                    "<td><button type=\"button\" class=\"btn btn-danger\"  onclick=update(\""+"m"+EID+"\",\"delete\")  >Delete</button></td></tr>";
+                    html += "<div class=\"modal fade\" id=\""+"m"+EID+"\" tabindex=\"-1\" role=\"dialog\"  aria-hidden=\"true\">"+
+                        "<div class=\"modal-dialog\" role=\"document\">"+
+                            "<div class=\"modal-content\">"+
+                                "<div class=\"modal-header\">"+
+                                    "<h5 class=\"modal-title\" id=\"exampleModalLabel\">"+EName+"</h5>"+
+                                    "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">"+
+                                    "<span aria-hidden=\"true\">&times;</span>"+       
+                                    "</button>"+
+                                    "</div>"+
+                                "<div class=\"modal-body\">"+
+                                    "<form>"+
+                                        "<p>Name<p>"+
+                                        "<input type=\"text\" class=\"form-control my-3\" placeholder=\"Enter new employee name\" name=\"ESalary\" value = \""+EName+"\" >"+
+                                        
+                                        "<p>Salary<p>"+
+                                        "<input type=\"text\" class=\"form-control my-3\" placeholder=\"Enter new salary\" name=\"ESalary\" value = \""+ESalary+"\" >"+
+                        
+                                        "<p>Role<p>"+
+                                        "<input type=\"text\" class=\"form-control my-3\" placeholder=\"Enter new role\" name=\"ERole\" value = \""+ERole+"\" >"+
+                        
+                                        "<input type=\"button\" class=\"btn btn-primary my-3\" onclick=update(\""+"m"+EID+"\",\"update\") value=\"Submit\">"+      
+                                    "</form>"+
+                                "</div>" +   
+                            "</div>"+
+                        "</div>"+
+                    "</div>";
+                }
+                display.innerHTML = html;
+            }
+        }
+        ajax.send();
+    }
+        
+    function update(ID, command){
+        let ESalary = document.getElementById(ID).getElementsByTagName("input")[1].value;
+        let ERole = document.getElementById(ID).getElementsByTagName("input")[2].value;
+        let EName = document.getElementById(ID).getElementsByTagName("input")[0].value;
+        let EID = ID.substring(1,5); // removes the m char
+        
+        
+        //string contain 4 args will be passed to server
+        let args = "?"+"ESalary="+ESalary+"&ERole="+ERole+"&EID="+EID+"&EName="+EName+"&command="+command;
+        
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/updateemp.php"+args;//php code
+        let async = true; 
+        
+        ajax.open(method, url, async);
+        ajax.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                data = this.responseText;
+                if(!alert(data)){
+                    location.reload(true);
+                }
+            }
+        
+        }
+        ajax.send();
+        
+        
+    }
+
+    </script>
+    
+</head>
+
+<body>
+    <div class="banner"></div>
+    <nav class="navbar navbar-expand-sm bg-primary navbar-dark sticky-top">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="productcontrol.html">Product Control</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="Employee.html">Employees</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="order.html">Order</a>
+        </li>
+      </ul>
+    </nav>
+    
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Employee ID</th>
+                <th scope="col">Employee Name</th>
+                <th scope="col">Employee Salary</th>
+                <th scope="col">Employee Role</th>
+                <th scope="col">Update</th>
+                <th scope="col">Remove</th>
+            </tr>
+        </thead>
+        <tbody id = "employee">
+            <script>display()</script>
+        </tbody>
+    </table>
+    <button type="button" class="btn btn-success" data-toggle="modal" onclick=highlow("highest")>Highest Salary</button>
+    <button type="button" class="btn btn-success" data-toggle="modal" onclick=highlow("lowest")>Lowest Salary</button>
+    <hr>
+    <h1>Employee Status</h1>
+    
+    
+<footer>
+ 	
+</footer>
+</body>
+</html>

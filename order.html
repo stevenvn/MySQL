@@ -1,0 +1,324 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Order</title>
+    <meta charset="utf-8">
+    
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="project.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    
+   
+    <script>
+    
+    //set attribute for ele
+    function setAtr(ele, attr){
+        for(let i in attr){
+            ele.setAttribute(i, attr[i]);
+        }
+    }
+    
+    //send request to server, get data in JSON format, display it in class productTable 
+    function ajaxProcess(ajax) {
+        ajax.onreadystatechange = function ( ){
+        if(this.readyState == 4 && this.status == 200){
+            var data = JSON.parse(this.responseText);
+            console.log(data);
+
+            let html = "";
+
+            if(data.length == 0){
+                html = "Find 0 result";
+                return;
+            }
+
+            for (let i = 0;i< data.length;i++){
+                //Extract data from response
+                let OID = data[i].oid;
+                let CEmail = data[i].cemail;
+                let OrderQuantity = data[i].orderquantity;
+                
+                
+                
+            html += 
+            "<tr>"+
+                "<td>"+OID+"</td>"+
+                "<td>"+CEmail+"</td>"+
+                "<td>"+OrderQuantity+"</td>"+
+                "<td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#"+"m"+OID +"\">Update</button<td>"+
+                "<td><button type=\"button\" class=\"btn btn-danger\"  onclick=update(\""+"m"+OID+"\",\"delete\")  >Delete</button></td>"+
+            "</tr>"+
+            
+            /*each model habe ID = m+OID by default*/
+            "<div class=\"modal fade\" id=\""+"m"+OID+"\" tabindex=\"-1\" role=\"dialog\"  aria-hidden=\"true\">"+
+                "<div class=\"modal-dialog\" role=\"document\">"+
+                    "<div class=\"modal-content\">"+
+                        "<div class=\"modal-header\">"+
+                            "<h5 class=\"modal-title\" id=\"exampleModalLabel\">"+CEmail+"</h5>"+
+                            "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">"+
+                            "<span aria-hidden=\"true\">&times;</span>"+       
+                            "</button>"+
+                            "</div>"+
+                        "<div class=\"modal-body\">"+
+                            "<form>"+
+                                "<p>Customer Email<p>"+
+                                "<input type=\"text\" class=\"form-control my-3\" placeholder=\"Enter new email\" name=\"Customer Email\" value = \""+CEmail+"\" >"+
+                                
+                                "<p>Order Quantity<p>"+
+                                "<input type=\"number\" class=\"form-control my-3\" placeholder=\"Enter new quantity\" name=\"Order Quantity\" value = \""+OrderQuantity+"\" >"+
+                
+                                "<input type=\"button\" class=\"btn btn-primary my-3\" onclick=update(\""+"m"+OID+"\",\"update\") value=\"Submit\">"+      
+                            "</form>"+
+                        "</div>" +   
+                    "</div>"+
+                "</div>"+
+            "</div>";
+            
+            
+            
+
+            }
+            document.getElementById("order").innerHTML = html;
+        }
+
+    }
+    }
+    
+    function display(command){
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/showorder.php?&command=" + command;//php code
+        let async = true; 
+        
+        
+        ajax.open(method, url, async);
+        ajaxProcess(ajax);
+        ajax.send();
+    
+    }
+
+    function join(command){
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/showorder.php?command=" + command;//php code
+        let async = true; 
+        
+        
+        ajax.open(method, url, async);
+        ajax.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                data = JSON.parse(this.responseText);
+                console.log(data);
+                html = "<thead class=\"thead-dark\"><tr><th scope=\"col\">Order ID</th><th scope=\"col\">Customer Email</th><th scope=\"col\">Order Quantity</th>";
+                let display = document.getElementById("attributes");
+                
+                if(command === "showPName" || command === "showAll"){
+                    html += "<th scope=\"col\">Product Name</th>"
+                }
+                if(command === "showEName" || command === "showAll"){
+                    html += "<th scope=\"col\">Employee Name</th><th scope=\"col\">Date Verified</th>";
+                }
+                html += "<th scope=\"col\">Update</th><th scope=\"col\">Remove</th></tr></thead>";
+                
+                for (let i = 0;i< data.length;i++){
+                    let OID = data[i].oid;
+                    let CEmail = data[i].cemail;
+                    let OrderQuantity = data[i].orderquantity;
+                    let PName;
+                    let EName;
+                    let DateVerified;
+                    if(command === "showPName" || command === "showAll"){
+                        PName = data[i].pname;
+                    }
+                    if(command === "showEName" || command === "showAll"){
+                        EName = data[i].ename;
+                        DateVerified = data[i].dateverified;
+                    }
+                    
+
+                    html = html + "<tr><td>" + OID + "</td><td>" + CEmail + "</td><td>" + OrderQuantity +"</td>";
+                    if(command === "showPName" || command === "showAll"){
+                        html += "<td>" + PName + "</td>";
+                    }
+                    if(command === "showEName" || command === "showAll"){
+                        html += "<td>" + EName + "</td><td>" + DateVerified + "</td>";
+                    }
+                    html += "<td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#"+"m"+OID +"\">Update</button<td>"+
+                    "<td><button type=\"button\" class=\"btn btn-danger\"  onclick=update(\""+"m"+OID+"\",\"delete\")  >Delete</button></td></tr>";
+                    html += "<div class=\"modal fade\" id=\""+"m"+OID+"\" tabindex=\"-1\" role=\"dialog\"  aria-hidden=\"true\">"+
+                        "<div class=\"modal-dialog\" role=\"document\">"+
+                            "<div class=\"modal-content\">"+
+                                "<div class=\"modal-header\">"+
+                                    "<h5 class=\"modal-title\" id=\"exampleModalLabel\">"+OID+"</h5>"+
+                                    "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">"+
+                                    "<span aria-hidden=\"true\">&times;</span>"+       
+                                    "</button>"+
+                                    "</div>"+
+                                "<div class=\"modal-body\">"+
+                                    "<form>"+
+                                        "<p>Customer Email<p>"+
+                                        "<input type=\"text\" class=\"form-control my-3\" placeholder=\"Enter new email\" name=\"CEmail\" value = \""+CEmail+"\" >"+
+                                        
+                                        "<p>Order Quantity<p>"+
+                                        "<input type=\"number\" class=\"form-control my-3\" placeholder=\"Enter new quantity\" name=\"OrderQuantity\" value = \""+OrderQuantity+"\" >";
+                    html += "<input type=\"button\" class=\"btn btn-primary my-3\" onclick=update(\""+"m"+OID+"\",\"update\") value=\"Submit\">"+      
+                                    "</form>"+
+                                "</div>" +   
+                            "</div>"+
+                        "</div>"+
+                    "</div>";
+                }
+                display.innerHTML = html;
+            }
+        }
+        ajax.send();
+    
+    }
+        
+    function update(ID, command){
+        let CEmail = document.getElementById(ID).getElementsByTagName("input")[0].value;
+        let OrderQuantity = document.getElementById(ID).getElementsByTagName("input")[1].value;
+        let OID = ID.substring(1,6);
+        
+        
+        //string contain 2 args will be passed to server
+        let args = "?"+"&OID="+OID+"&CEmail="+CEmail+"&OrderQuantity="+OrderQuantity+"&command="+command;
+        
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/updateorder.php"+args;//php code
+        let async = true; 
+        
+        ajax.open(method, url, async);
+        ajax.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                data = this.responseText;
+                if(!alert(data)){
+                    location.reload(true);
+                }
+            }
+        
+        }
+        ajax.send();
+        
+        
+    }
+    function add(){
+        let OID = document.getElementById("adddata").getElementsByTagName("input")[0].value;
+        
+        let CEmail = document.getElementById("adddata").getElementsByTagName("input")[1].value;
+        
+        let OrderQuantity = document.getElementById("adddata").getElementsByTagName("input")[2].value;
+
+        
+        let args = "?"+"OID="+OID+"&CEmail="+CEmail+"&OrderQuantity="+OrderQuantity;
+        
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/addOrder.php"+args;//php code
+        let async = true; 
+        
+        
+        
+        ajax.open(method, url, async);
+        ajax.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                data = this.responseText;
+                console.log(data);
+                if(!alert(data)){
+                    location.reload(true);
+                }
+            }
+        
+        }
+        ajax.send();
+
+    }
+
+    </script>
+    
+</head>
+
+<body>
+    <div class="banner"></div>
+    <nav class="navbar navbar-expand-sm bg-primary navbar-dark sticky-top">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Home</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="productcontrol.html">Product Control</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="Employee.html">Employees</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="order.html">Order</a>
+        </li>
+      </ul>
+    </nav>
+    
+    <table class="table table-hover" id="attributes">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">Order ID</th>
+                <th scope="col">Customer Email</th>
+                <th scope="col">Order Quantity</th>
+                <th scope="col">Update</th>
+                <th scope="col">Remove</th>
+            </tr>
+        </thead>
+        <tbody id = "order">
+            <script>display("showOrder")</script>
+        </tbody>
+    </table>
+    
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#adddata"> Place a New Order </button>
+    <button type="button" class="btn btn-success" onclick=join("showOrder")> Show Orders</button>
+    <button type="button" class="btn btn-success" onclick=join("showPName")> Show Product Name </button>
+    <button type="button" class="btn btn-success" onclick=join("showEName")> Show Verified Orders </button>
+    <button type="button" class="btn btn-success" onclick=join("showAll")> Show All </button>
+    <hr>
+    
+    
+    <!--form add new data  -->
+    <div class="modal fade" id="adddata" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+       <div class="modal-dialog" role="document">
+          <div class="modal-content">
+             <div class="modal-header">
+                <h5 class="modal-title">New Order</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+             </div>
+             <div class="modal-body">
+                <p>OID</p>
+                <input type="number" class = "form-control my-3">
+                <p>Customer Email</p>
+                <input type="text" class = "form-control my-3">
+                <p>Order Quantity</p>
+                <input type="number" class = "form-control my-3">
+                <button class="btn btn-primary" onclick="add()">Submit</button>
+             </div>
+          </div>
+       </div>
+    </div>
+    <hr>
+    <h1>Order Details</h1>
+    
+    
+<footer>
+ 	
+</footer>
+</body>
+</html>

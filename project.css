@@ -1,0 +1,81 @@
+* {
+    box-sizing: border-box;
+}
+
+
+body {height: 100%;
+    text-align: center;
+    justify-content: center;
+}
+
+html {height: 100%;}
+
+/* PRODUCT TABLE */
+
+/* Element inside this div will be centered  */
+#productTable{
+    margin: auto;
+    display: flex;
+    width:80%;
+    text-align: center;
+    flex-wrap: wrap;
+    justify-content: center;
+
+}
+
+.image {
+    width: 150px;
+    height: 150px;
+    border-radius: 10px;
+}
+
+
+
+
+.productBox {
+    position: relative;
+    margin: 5px;
+    width: 160px;
+    height: 250px;
+    margin: 10px;
+    display: inline-block;
+    box-shadow: 0px 8px 16px 0px rgba(0,0,0,0.2);
+    transition: transform .2s;
+    border-radius: 10px;
+    
+}
+
+
+/*zoom in while hover element*/
+
+.productBox:hover{
+    transform: scale(1.1);
+}
+
+
+
+/* PRODUCT TABLE END*/
+
+
+
+
+
+
+.banner{
+    background-image:url(img/banner.png);
+    background-size: cover; 
+    height: 30%;
+    position: relative;
+}
+
+
+
+
+
+
+/* FOOTER */
+
+
+/* FOOTER END*/
+
+

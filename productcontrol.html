@@ -1,0 +1,370 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Product Control</title>
+    <meta charset="utf-8">
+    
+    <!-- Latest compiled and minified CSS -->
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+
+    <!-- jQuery library -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+
+    <!-- Popper JS -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"></script>
+
+    <!-- Latest compiled JavaScript -->
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js"></script>
+    <link rel="stylesheet" href="project.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <link rel="icon" href="image/favicon.ico" type="image/x-icon"> 
+    
+   
+    <script>
+    
+    //set attribute for ele
+    function setAtr(ele, attr){
+        for(let i in attr){
+            ele.setAttribute(i, attr[i]);
+        }
+    }
+    
+    //send request to server, get data in JSON format, display it in class productTable 
+    function ajaxProcess(ajax) {
+        ajax.onreadystatechange = function ( ){
+        if(this.readyState == 4 && this.status == 200){
+            var data = JSON.parse(this.responseText);
+            console.log(data);
+
+            let html = "";
+
+            if(data.length == 0){
+                html = "Find 0 result";
+                return;
+            }
+
+            for (let i = 0;i< data.length;i++){
+                //Extract data from response
+                let PID = data[i].PID;
+                let PName = data[i].PName;
+                let Price = data[i].Price;
+                let Publisher = data[i].Publisher;
+                let ReleaseDate = data[i].ReleaseDate;
+                let Quantity = data[i].Quantity;
+                
+                
+                
+            html += 
+            "<tr>"+
+                "<td>"+PID+"</td>"+
+                "<td>"+PName+"</td>"+
+                "<td>"+Price+"</td>"+
+                "<td>"+ReleaseDate+"</td>"+
+                "<td>"+Publisher+"</td>"+
+                "<td>"+Quantity+"</td>"+
+                "<td><button type=\"button\" class=\"btn btn-primary\" data-toggle=\"modal\" data-target=\"#"+"m"+PID +"\">Update</button<td>"+
+                "<td><button type=\"button\" class=\"btn btn-danger\"  onclick=update(\""+"m"+PID+"\",\"delete\")  >Delete</button></td>"+
+            "</tr>"+
+            
+            /*each model habe ID = m+PID by default*/
+            "<div class=\"modal fade\" id=\""+"m"+PID+"\" tabindex=\"-1\" role=\"dialog\"  aria-hidden=\"true\">"+
+                "<div class=\"modal-dialog\" role=\"document\">"+
+                    "<div class=\"modal-content\">"+
+                        "<div class=\"modal-header\">"+
+                            "<h5 class=\"modal-title\" id=\"exampleModalLabel\">"+PName+"</h5>"+
+                            "<button type=\"button\" class=\"close\" data-dismiss=\"modal\" aria-label=\"Close\">"+
+                            "<span aria-hidden=\"true\">&times;</span>"+       
+                            "</button>"+
+                            "</div>"+
+                        "<div class=\"modal-body\">"+
+                            "<form>"+
+                                "<p>Price<p>"+
+                                "<input type=\"number\" class=\"form-control my-3\" placeholder=\"Enter new Price\" name=\"Price\" value = \""+Price+"\" >"+
+                                
+                                "<p>Release Date<p>"+
+                                "<input type=\"date\" class=\"form-control my-3\" placeholder=\"Enter new date\" name=\"ReleaseDate\" value = \""+ReleaseDate+"\" >"+
+                
+                                "<p>Publisher<p>"+
+                                "<input type=\"text\" class=\"form-control my-3\" placeholder=\"Enter new Publisher\" name=\"Publisher\" value = \""+Publisher+"\" >"+
+                
+                                "<p>Quantity<p>"+
+                                "<input type=\"number\" class=\"form-control my-3\" placeholder=\"Enter new Quantity\" name=\"Quantity\" value = \""+Quantity+"\" >"+
+                                "<input type=\"button\" class=\"btn btn-primary my-3\" onclick=update(\""+"m"+PID+"\",\"update\") value=\"submit\">"+      
+                            "</form>"+
+                        "</div>" +   
+                    "</div>"+
+                "</div>"+
+            "</div>";
+            
+            
+            
+
+            }
+            document.getElementById("productControl").innerHTML = html;
+        }
+
+    }
+    }
+    
+    function display(){
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/showAllProductMoreDetail.php";//php code
+        let async = true; 
+        
+        
+        ajax.open(method, url, async);
+        ajaxProcess(ajax);
+        ajax.send();
+    
+    }
+        
+    function update(ID, command){
+        let Price = document.getElementById(ID).getElementsByTagName("input")[0].value;
+        let ReleaseDate = document.getElementById(ID).getElementsByTagName("input")[1].value;
+        let Publisher = document.getElementById(ID).getElementsByTagName("input")[2].value;
+        let Quantity = document.getElementById(ID).getElementsByTagName("input")[3].value;
+        let PName = document.getElementById(ID).getElementsByTagName("h5")[0].innerHTML;
+        let PID = ID.substring(1,4);
+        
+        
+        //string contain 4 args will be passed to server
+        let args = "?"+"Price="+Price+"&ReleaseDate="+ReleaseDate+"&Publisher="+Publisher+"&Quantity="+Quantity+"&PID="+PID+"&PName="+PName+"&command="+command;
+        
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/update.php"+args;//php code
+        let async = true; 
+        
+        ajax.open(method, url, async);
+        ajax.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                data = this.responseText;
+                if(!alert(data)){
+                    location.reload(true);
+                }
+            }
+        
+        }
+        ajax.send();
+        
+        
+    }
+        
+    function add(){
+        let PName = document.getElementById("adddata").getElementsByTagName("input")[0].value;
+        
+        let PID = document.getElementById("adddata").getElementsByTagName("input")[1].value;
+        
+        let ReleaseDate = document.getElementById("adddata").getElementsByTagName("input")[2].value;
+        
+        let Publisher = document.getElementById("adddata").getElementsByTagName("input")[3].value;
+        
+        
+        let Quantity = document.getElementById("adddata").getElementsByTagName("input")[4].value;
+        
+        let Price = document.getElementById("adddata").getElementsByTagName("input")[4].value;
+
+        
+        let args = "?"+"Price="+Price+"&ReleaseDate="+ReleaseDate+"&Publisher="+Publisher+"&Quantity="+Quantity+"&PID="+PID+"&PName="+PName+"&PID="+PID;
+        
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/addProduct.php"+args;//php code
+        let async = true; 
+        
+        
+        
+        ajax.open(method, url, async);
+        ajax.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                data = this.responseText;
+                console.log(data);
+                if(!alert(data)){
+                    location.reload(true);
+                }
+            }
+        
+        }
+        ajax.send();
+
+    }
+        
+    function boughtByAll(){
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/buyall.php";//php code
+        let async = true; 
+        
+        ajax.open(method, url, async);
+        ajax.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                data = JSON.parse(this.responseText);
+                console.log(data);
+                html = "";
+                let display = document.getElementById("boughtByAll");
+                for (let i = 0;i< data.length;i++){
+                    let PName = data[i].PName;
+                    html = html + PName;
+                }
+                display.innerHTML = html;
+            }
+        }
+        
+    
+        ajax.send();
+    }
+    
+    function findMax(){
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/findMax.php";//php code
+        let async = true; 
+        
+        ajax.open(method, url, async);
+        ajax.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                data = JSON.parse(this.responseText);
+                console.log(data);
+                html = "";
+                let display = document.getElementById("boughtByAll");
+                for (let i = 0;i< data.length;i++){
+                    let PName = data[i].PName;
+                    html = html + PName;
+                }
+                display.innerHTML = html;
+            }
+        }
+        
+    
+        ajax.send();
+    }    
+        
+    function totalNetWorth(){
+        let ajax = new XMLHttpRequest();
+        let method = "GET";
+        let url = "php/totalNetWorth.php";//php code
+        let async = true; 
+        
+        ajax.open(method, url, async);
+        ajax.onreadystatechange = function(){
+            if(this.readyState == 4 && this.status == 200){
+                data = JSON.parse(this.responseText);
+                console.log(data);
+                html = "";
+                let display = document.getElementById("boughtByAll");
+                for (let i = 0;i< data.length;i++){
+                    let sum = data[i].sum;
+                    html = html + "$ " + sum 
+                }
+                display.innerHTML = html;
+            }
+        }
+        
+    
+        ajax.send();
+    }
+
+    </script>
+    
+</head>
+
+<body>
+    <div class="banner"></div>
+
+    <nav class="navbar navbar-expand-sm bg-primary navbar-dark sticky-top">
+      <ul class="navbar-nav">
+        <li class="nav-item">
+          <a class="nav-link" href="index.html">Home</a>
+        </li>
+        <li class="nav-item active">
+          <a class="nav-link" href="productcontrol.html">Product Control</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="Employee.html">Employees</a>
+        </li>
+        <li class="nav-item">
+          <a class="nav-link" href="order.html">Order</a>
+        </li>
+      </ul>
+    </nav>
+    
+   <!-- table for product-->
+    <table class="table table-hover">
+        <thead class="thead-dark">
+            <tr>
+                <th scope="col">PID</th>
+                <th scope="col">Name</th>
+                <th scope="col">Price</th>
+                <th scope="col">Release Date</th>
+                <th scope="col">Publisher</th>
+                <th scope="col">Quantity</th>
+                <th scope="col">Update</th>
+                <th scope="col">Remove</th>
+            </tr>
+        </thead>
+        <tbody id = "productControl">
+            <script>display()</script>
+        </tbody>
+    </table>
+    <hr>
+    
+    <button type="button" class="btn btn-success" data-toggle="modal" data-target="#adddata"> Add </button>
+    <hr>
+    
+    
+    <!--form add new data  -->
+    <div class="modal fade" id="adddata" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+       <div class="modal-dialog" role="document">
+          <div class="modal-content">
+             <div class="modal-header">
+                <h5 class="modal-title">Add new game</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+                </button>
+             </div>
+             <div class="modal-body">
+                <p>Name</p>
+                <input type="text" class = "form-control my-3">
+                <p>ID</p>
+                <input type="number" class = "form-control my-3">
+                <p>Release Date</p>
+                <input type="date" class = "form-control my-3">
+                <p>Publisher</p>
+                <input type="text" class = "form-control my-3">
+                <p>Quantity</p>
+                <input type="number" class = "form-control my-3">
+                <p>Price</p>
+                <input type="number" class = "form-control my-3">
+                <button class="btn btn-primary" onclick="add()">Submit</button>
+             </div>
+          </div>
+       </div>
+    </div>
+    
+ <!--   open average product price table-->
+    <br><br>
+    <button type="button" class="btn btn-success" onclick="window.location.href = 'php/AvgProdPrice.php'"> Average Product Price by Publisher </button>
+    <br><br>
+    
+    <div class="buttonBox">
+        <button class="btn btn-info m-2" onclick="boughtByAll()">Find product bought by all customer</button>
+
+
+        <button onclick="findMax()" class="btn btn-info m-2">Find Most Expensive Product</button>
+
+        <button onclick="totalNetWorth()" class="btn btn-info m-2">Total Product in Stock worth</button>
+    </div>
+    
+    <h4 class="border border-primary mt-3" id="boughtByAll">result display here</h4>
+    
+    
+
+    
+<footer>
+ 	
+</footer>
+</body>
+
+</html>
